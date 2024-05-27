@@ -100,9 +100,9 @@ const run = async () => {
           }
         });
 
-        console.log(`Request failed with status code: ${req.status}`);
-
-        if (req.status === 200) {
+        if (req.status !== 200) {
+          console.log(`Request failed with status code: ${req.status}`);
+        } else {
           const data = await req.json();
           const deployment = findDeployment(
             data,
