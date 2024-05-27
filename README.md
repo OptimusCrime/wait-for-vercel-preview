@@ -8,42 +8,41 @@ Please note that this action is supposed to be run on the `pull_request` or `pus
 
 ### `token` (Required)
 
-The github secret `${{ secrets.GITHUB_TOKEN }}`
+The Vercel secret `${{ secrets.VERCEL_TOKEN }}`
 
-### `environment`
+### `team_id` (Required)
 
-Optional — The name of the environment that was deployed to (e.g., staging or production)
+The Vercel team ID `${{ secrets.VERCEL_TEAM_ID }}`
+
+### `app` (Required)
+
+The app name to find the deployment for.
+
+### `commit_sha` (Required)
+
+The commit we should find the deployment for.
+
+### `commit_branch` (Required)
+
+The branch we should find the deployment for.
 
 ### `max_timeout`
 
-Optional — The amount of time to spend waiting on Vercel. Defaults to `60` seconds
+Optional — The amount of time (in seconds) to spend waiting on Vercel. Defaults to `120` seconds.
 
-### `allow_inactive`
+### `initial_timeout`
 
-Optional - Use the most recent inactive deployment (previously deployed preview) associated with the pull request if
-no new deployment is available. Defaults to `false`.
+Optional — The amount of time (in seconds) to wait before the first check. Defaults to `5` seconds.
 
 ### `check_interval`
 
 Optional - How often (in seconds) should we make the HTTP request checking to see if the deployment is available? Defaults to `2` seconds.
-
-### `vercel_password`
-
-Optional - The [password](https://vercel.com/docs/concepts/projects/overview#password-protection) for the deployment
-
-### `path`
-
-Optional - The URL that tests should run against (eg. `path: "https://vercel.com"`).
 
 ## Outputs
 
 ### `url`
 
 The vercel deploy preview url that was deployed.
-
-### `vercel_jwt`
-
-If accessing a password protected site, the JWT from the login event. This can be passed on to e2e tests, for instance.
 
 ## Example usage
 
@@ -52,13 +51,17 @@ Basic Usage
 ```yaml
 steps:
   - name: Waiting for 200 from the Vercel Preview
-    uses: patrickedqvist/wait-for-vercel-preview@v1.3.1
+    uses: OptimusCrime/wait-for-vercel-preview@v2.0.0
     id: waitFor200
     with:
-      token: ${{ secrets.GITHUB_TOKEN }}
+      token: ${{ secrets.VERCEL_TOKEN }}
+      team_id: ${{ secrets.VERCEL_TEAM_ID }}
+      app: app-name
+      commit_sha: ${{ github.sha }}
+      commit_branch: main
       max_timeout: 60
   # access preview url
-  - run: echo ${{steps.waitFor200.outputs.url}}
+  - run: echo ${{ steps.waitFor200.outputs.url }}
 ```
 
 ## Building
@@ -68,12 +71,4 @@ The Action is bundled via [ncc](https://github.com/vercel/ncc). See [this discus
 ```sh
 npm run build
 # outputs the build to dist/index.js
-```
-
-## Tests
-
-Unit tests with [Jest](https://jestjs.io/) and [Mock Service Worker](https://mswjs.io/)
-
-```
-npm test
 ```

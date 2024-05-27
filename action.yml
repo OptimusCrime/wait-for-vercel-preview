@@ -5,34 +5,36 @@ branding:
   color: 'blue'
 inputs:
   token:
-    description: 'The Github Secret'
+    description: 'The Vercel token'
+    required: true
+  team_id:
+    description: 'The Vercel team ID'
+    required: true
+  app:
+    description: 'The app name to find the deployment for.'
+    required: true
+  commit_sha:
+    description: 'The commit we should find the deployment for'
+    required: true
+  commit_branch:
+    description: 'The branch we should find the deployment for'
     required: true
   max_timeout:
-    description: 'The max time to run the action'
+    description: 'The amount of time (in seconds) to spend waiting on Vercel. Defaults to 120 seconds'
+    default: '120'
     required: false
-  environment:
-    description: 'The name of the environment that was deployed to (e.g., staging or production)'
-    required: false
-  allow_inactive:
-    description: 'Use the most recent inactive deployment (previously deployed preview) associated with the pull request if no new deployment is available.'
+  initial_timeout:
+    description: 'The amount of time (in seconds) to wait before the first check. Defaults to 5 seconds'
+    default: '5'
     required: false
   check_interval:
-    description: 'How often (in seconds) should we make the HTTP request checking to see if the deployment is available?'
+    description: 'How often (in seconds) should we make the HTTP request checking to see if the deployment is available? Defaults to 2 seconds'
     default: '2'
-    required: false
-  vercel_password:
-    description: 'Vercel password protection secret'
-    required: false
-  path:
-    description: 'The path to check. Defaults to the index of the domain'
-    default: '/'
     required: false
 
 outputs:
   url:
     description: 'The fully qualified deploy preview URL'
-  vercel_jwt:
-    description: 'If the deployment is using password protection, this will be a JWT. Otherwise, outputs an empty string'
 runs:
   using: 'node20'
   main: 'dist/index.js'
