@@ -10,6 +10,8 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
  * --- githubCommitRef
  * --- githubCommitSha
  * @param data
+ * @param COMMIT_SHA
+ * @param COMMIT_BRANCH
  */
 const findDeployment = (data, COMMIT_SHA, COMMIT_BRANCH) => {
   if (!data.deployments) {
@@ -19,7 +21,7 @@ const findDeployment = (data, COMMIT_SHA, COMMIT_BRANCH) => {
   const deployments = data.deployments;
 
   for (const deployment of deployments) {
-    if (deployment.meta) {
+    if (!deployment.meta) {
       continue;
     }
 
@@ -74,7 +76,7 @@ const run = async () => {
     }
 
     if (missingInputs.length > 0) {
-      core.setFailed(`Missing one or more required field(s): ${missingInputs.join(', ')}`);
+      core.setFailed(`Missing one or more required field(s): ${missingInputs.join('. ')}`);
     }
 
     if (INITIAL_TIMEOUT_IN_MS > 0) {
@@ -94,13 +96,13 @@ const run = async () => {
         const req = await fetch(`https://api.vercel.com/v6/deployments?teamId=${VERCEL_TEAM_ID}&app=${APP}`, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${VERCEL_TEAM_ID}`,
+            "Authorization": `Bearer ${VERCEL_TOKEN}`,
           }
         });
 
-        if (req.status !== 200) {
-          console.log(`Request failed with status code: ${req.status}`);
-        } else {
+        console.log(`Request failed with status code: ${req.status}`);
+
+        if (req.status === 200) {
           const data = await req.json();
           const deployment = findDeployment(
             data,
@@ -129,6 +131,7 @@ const run = async () => {
                 return;
               default:
                 console.log("Deployment has unexpected status. Trying again");
+                break;
             }
           }
         }
